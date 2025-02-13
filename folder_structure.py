@@ -1,17 +1,17 @@
 import os
-import re  # Import the regular expression module
+import re
 
-def create_dsa_folder_structure_with_data(data):
+def create_numbered_dsa_folder_structure_with_data(data):
     """
-    Creates the folder structure for the Dsa repository based on provided data,
-    maintaining the order of questions as given in the input and handling invalid characters in filenames.
+    Creates a numbered folder structure for the Dsa repository based on provided data,
+    maintaining the order of topics and questions as given in the input and adding numbers to folders and files.
 
     Args:
         data: A list of dictionaries, where each dictionary contains:
               - "topic": The topic folder name.
               - "question_name": The question name to be used as filename.
     """
-    root_folder = "Dsa"
+    root_folder = "Dsa_Numbered" # Changed root folder name to "Dsa_Numbered" to differentiate
     language_folders = ["python", "c", "c++", "java", "javascript"]
 
     # Create the root folder if it doesn't exist
@@ -31,16 +31,29 @@ def create_dsa_folder_structure_with_data(data):
             print(f"  Language folder '{language_folder}' already exists.")
 
         # Create topic folders and files based on data
+        topic_counter = 1 # Initialize topic counter
+        current_topic = None # Track current topic to avoid redundant folder creation
+
         for item in data: # Iterate through data in the given order
             topic_name = item["topic"]
             question_name = item["question_name"]
 
-            topic_path = os.path.join(language_path, topic_name)
-            if not os.path.exists(topic_path):
-                os.makedirs(topic_path)
-                print(f"    Created topic folder: {topic_name} in {language_folder}")
-            else:
-                print(f"    Topic folder '{topic_name}' already exists in {language_folder}")
+            if topic_name != current_topic: # Check if topic has changed
+                numbered_topic_name = f"{topic_counter}-{topic_name}" # Add number to topic folder name
+                topic_path = os.path.join(language_path, numbered_topic_name)
+                if not os.path.exists(topic_path):
+                    os.makedirs(topic_path)
+                    print(f"    Created topic folder: {numbered_topic_name} in {language_folder}")
+                else:
+                    print(f"    Topic folder '{numbered_topic_name}' already exists in {language_folder}")
+                current_topic = topic_name # Update current topic
+                question_counter = 1 # Reset question counter for new topic
+                topic_counter += 1 # Increment topic counter
+
+            else: # If topic is the same, use existing topic path
+                numbered_topic_name = f"{topic_counter - 1}-{topic_name}" # Use previous topic counter
+                topic_path = os.path.join(language_path, numbered_topic_name)
+
 
             # Create file in each language folder with respective extension
             file_extension = {
@@ -51,18 +64,20 @@ def create_dsa_folder_structure_with_data(data):
                 "javascript": ".js"
             }
             # Replace invalid characters with hyphen and spaces with underscores for filename
-            file_name_base = re.sub(r'[<>:"/\\|?*]', '-', question_name) # Replace invalid characters with hyphen
-            file_name = file_name_base.replace(" ", "_") + file_extension[language_folder]
+            file_name_base = re.sub(r'[<>:"/\\|?*]', '-', question_name) # Replace invalid characters
+            numbered_question_name = f"{question_counter}-{file_name_base}" # Add number to question file name
+            file_name = numbered_question_name.replace(" ", "_") + file_extension[language_folder]
             file_path = os.path.join(topic_path, file_name)
 
             if not os.path.exists(file_path):
                 open(file_path, 'w').close() # Create empty file
-                print(f"      Created file: {file_name} in {topic_name}/{language_folder}")
+                print(f"      Created file: {file_name} in {numbered_topic_name}/{language_folder}")
             else:
-                print(f"      File '{file_name}' already exists in {topic_name}/{language_folder}")
+                print(f"      File '{file_name}' already exists in {numbered_topic_name}/{language_folder}")
+            question_counter += 1 # Increment question counter
 
 
-    print("DSA folder structure creation complete with topics and files, maintaining question order and handling invalid characters.")
+    print("DSA folder structure creation complete with numbered topics and files, maintaining question order.")
 
 if __name__ == "__main__":
     data = [
@@ -156,7 +171,7 @@ if __name__ == "__main__":
         {"topic": "Backtracking", "question_name": "Partition Equal Subset Sum"},
         {"topic": "Backtracking", "question_name": "M Coloring Problem"},
         {"topic": "Backtracking", "question_name": "Knight Tour"},
-        {"topic": "Backtracking", "question_name": "Soduko"}, # Corrected typo "Soduko" -> "Sudoku" in data for consistency, but filename will be generated from question_name
+        {"topic": "Backtracking", "question_name": "Sudoku"},
         {"topic": "Backtracking", "question_name": "Remove Invalid Parentheses"},
         {"topic": "Backtracking", "question_name": "Word Break Problem using Backtracking"},
         {"topic": "Backtracking", "question_name": "Print all Palindromic Partitions of a String"},
@@ -401,4 +416,4 @@ if __name__ == "__main__":
         {"topic": "DP", "question_name": "Maximum sum increasing subsequence"},
         {"topic": "DP", "question_name": "Count all subsequences having product less than K"}
     ]
-    create_dsa_folder_structure_with_data(data)
+    create_numbered_dsa_folder_structure_with_data(data)
